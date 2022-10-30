@@ -16,6 +16,7 @@ from aiogram.types import InlineKeyboardMarkup
 # from PIL import Image
 
 import numpy as np
+
 # import dnnlib
 # import legacy
 # import predict
@@ -43,7 +44,7 @@ class Task:
 async def send_ready_images(ready_queue, bot):
     while True:
         if ready_queue.qsize():
-            path, task = ready_queue.get()
+            (path, pred_str), task = ready_queue.get()
             print("$%^$%^", path, task)
             print('sending photo to {}'.format(task.chat_id))
             markup = InlineKeyboardMarkup()
@@ -58,10 +59,10 @@ async def send_ready_images(ready_queue, bot):
                 await bot.send_photo(
                     chat_id=task.chat_id,
                     photo=f,
-                    caption="я вижу тут слово початок???",
+                    caption=f"я вижу тут слово {pred_str}",
                     reply_markup=markup
                 )
-            os.remove(path)
+            # os.remove(path)
         else:
             await asyncio.sleep(0.1)
 
@@ -81,13 +82,16 @@ class RecognizeThread(Thread):
 
     def predict(self, task: Task):
         image_path = task.image_path
-    #     faces = self.align_face_on_image(image_path)
-    #     if faces:
-    #         for face in faces:
-    #             save_path = image_path[:image_path.rfind('.')] + f'{task.cnt_faces:03d}' + '.png'
-    #             task.cnt_faces += 1
-    #             face.save(save_path)
-        self.ready_queue.put((image_path, task))
+
+        #     faces = self.align_face_on_image(image_path)
+        #     if faces:
+        #         for face in faces:
+        #             save_path = image_path[:image_path.rfind('.')] + f'{task.cnt_faces:03d}' + '.png'
+        #             task.cnt_faces += 1
+        #             face.save(save_path)
+        pred_str = 'kek1'
+
+        self.ready_queue.put(((image_path, pred_str), task))
 
     def get_waiting_time(self):
         time = 10
